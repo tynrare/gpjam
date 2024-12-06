@@ -136,7 +136,7 @@ int scene_a(ScreenplayScene *scene, bool commit) {
 }
 
 ScreenplaySceneConf screenplay_scene_b_conf = {
-    4, 2, false,
+    4, 2, true,
     { 
         0.0, // begin
         0.1,  // background 1 
@@ -149,7 +149,7 @@ ScreenplaySceneConf screenplay_scene_b_conf = {
 int scene_b(ScreenplayScene *scene, bool commit) {
     const ScreenplaySceneConf *conf = &screenplay_scene_b_conf;
     
-    int _page = scene->page;
+   // int _page = scene->page;
     float e = fminf( scene->elapsed / conf->duration, 1.0);
     
      step_screenplay_scene(conf, scene, commit);
@@ -157,7 +157,7 @@ int scene_b(ScreenplayScene *scene, bool commit) {
      const float *pd = &conf->pages_durations;
      
      const int pad = 8;
-     const redarea_h = 256 - pad * 2;
+     const int redarea_h = 256 - pad * 2;
      DrawRectangle(pad, pad, viewport_w - pad * 2, redarea_h, Fade(RED, nmap(pd[0], pd[2], e)));
      
      print_screenplay_text_color("@tynroar, wit.games;", 0, pd[1], pd[3], e, BLACK);
@@ -171,8 +171,7 @@ int scene_b(ScreenplayScene *scene, bool commit) {
      draw_text_ru(text_loading, tl_px, tl_py, GRAY);
      print_screenplay_text_pos(text_loading, pd[1], pd[4], e, tl_px, tl_py, RED);
 
-     DrawRectangle(0, 0, viewport_w, viewport_h, Fade(BLACK, nmap(pd[4], 1.0, e)));
-     
+     //DrawRectangle(0, 0, viewport_w, viewport_h, Fade(BLACK, nmap(pd[4], 1.0, e)));
      
      const int picsize = 32;
      const int hearts = 3;

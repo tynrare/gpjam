@@ -59,13 +59,14 @@ void draw() {
     } 
 
     Texture tex = arender->rt_f0.texture;
+    BeginShaderMode(ASSET_SHADER_CHROMAKEY);
     DrawTexturePro(
             tex, 
             (Rectangle){ 0, 0, tex.width, -tex.height }, 
             (Rectangle){ 0, 0, tex.width, tex.height }, 
             (Vector2) { 0,0 }, 
-            0 * RAD2DEG, WHITE);
-
+            0 * RAD2DEG, GREEN);
+    EndShaderMode();
     draw_grid();
 }
 
