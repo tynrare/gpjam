@@ -46,7 +46,7 @@ void step_screenplay_scene(
              
     const float scene_duration = conf->duration;
     const int pages_count = conf->pages_count;
-    const float *page_durations = &conf->pages_durations;
+    const float *page_durations = conf->pages_durations;
     
     if (commit) {
         _page += 1;
@@ -126,7 +126,7 @@ int scene_a(ScreenplayScene *scene, bool commit) {
         }
     }
 
-    const float *pd = &conf->pages_durations;
+    const float *pd = conf->pages_durations;
     print_screenplay_text("В поисках          плюса.", 0, pd[0], pd[1], e);
     print_screenplay_text_color("          золотого", 0, pd[0], pd[1], e, RED);
     print_screenplay_text("Story mode.", 1, pd[1], pd[2], e);
@@ -154,11 +154,11 @@ int scene_b(ScreenplayScene *scene, bool commit) {
     
      step_screenplay_scene(conf, scene, commit);
      
-     const float *pd = &conf->pages_durations;
+     const float *pd = conf->pages_durations;
      
      const int pad = 8;
      const int redarea_h = 256 - pad * 2;
-     DrawRectangle(pad, pad, viewport_w - pad * 2, redarea_h, Fade(RED, nmap(pd[0], pd[2], e)));
+     DrawRectangle(pad, pad, viewport_w - pad * 2, redarea_h, Fade(BLUE, nmap(pd[0], pd[2], e) * 0.7 + 0.3));
      
      print_screenplay_text_color("@tynroar, wit.games;", 0, pd[1], pd[3], e, BLACK);
      
@@ -175,7 +175,7 @@ int scene_b(ScreenplayScene *scene, bool commit) {
      
      const int picsize = 32;
      const int hearts = 3;
-     Color hearts_tint = Fade(BLACK, nmap(pd[2], pd[2] + 0.2, e));
+     Color hearts_tint = Fade(BLACK, nmap(pd[2], pd[3], e));
      for (int i = 1; i <= hearts; i++) {
               DrawTexturePro(
                 ASSET_TEXTURE_HEART,

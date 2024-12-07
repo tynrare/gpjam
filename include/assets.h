@@ -10,7 +10,7 @@
 
 #define ASSETS_SOUNDS_COUNT 4
 #define ASSETS_TEXTURES_COUNT 3
-#define ASSETS_SHADERS_COUNT 3
+#define ASSETS_SHADERS_COUNT 4
 
 static const char* const assets_sounds_filenames[] = {
     SOUNDS_PATH "story_mode.ogg",
@@ -29,12 +29,16 @@ typedef struct TynShaderGeneric {
     Shader shader;
     int time_loc;
     int tpalette_loc; 
+    int resolution_loc;
+    int tnoise0_loc;
+    int tnoise1_loc;
 } TynShaderGeneric;
 
 static const char* const assets_shaders_filenames[] = {
     SHADERS_PATH "sprite_generic.fs",
     SHADERS_PATH "chromakey.fs",
-    SHADERS_PATH "sprite_sdf.fs"
+    SHADERS_PATH "sprite_sdf.fs",
+    SHADERS_PATH "vfx_goldflames.fs"
 };
 
 typedef struct Assets {
@@ -44,6 +48,8 @@ typedef struct Assets {
      int texture_file_mod_times[ASSETS_SOUNDS_COUNT];
      TynShaderGeneric shaders[ASSETS_SHADERS_COUNT];
      int shader_file_mod_times[ASSETS_SHADERS_COUNT];
+     Texture tex_noise0;
+     Texture tex_noise1;
 } Assets;
 
 Assets *assets = { 0 };
@@ -57,10 +63,12 @@ Assets *assets = { 0 };
 #define ASSET_TEXTURE_HEART           assets->textures[1]
 #define ASSET_TEXTURE_HEXAGON   assets->textures[2]
 
-#define ASSET_SHADER_SPRITE_GENERIC   assets->shaders[0].shader
-#define ASSET_SHADER_CHROMAKEY                assets->shaders[1].shader
-#define ASSET_SHADER_SDF                                       assets->shaders[2].shader
+#define ASSET_GSHADER_VFX_GOLDFLAMES assets->shaders[3]
 
+#define ASSET_SHADER_SPRITE_GENERIC       assets->shaders[0].shader
+#define ASSET_SHADER_CHROMAKEY                    assets->shaders[1].shader
+#define ASSET_SHADER_SDF                                           assets->shaders[2].shader
+#define ASSET_SHADER_VFX_GOLDFLAMES    ASSET_GSHADER_VFX_GOLDFLAMES.shader
 
 static void assets_load_sound(Assets *assets, int index) {
     Sound sound = LoadSound(assets_sounds_filenames[index]);
@@ -105,8 +113,14 @@ static void load_shader(Assets *assets, int index) {
 
      tsg->time_loc = GetShaderLocation(tsg->shader , "time");
      tsg->tpalette_loc = GetShaderLocation(tsg->shader , "tex_palette");
-         
-    SetShaderValue(tsg->shader, tsg->tpalette_loc, &ASSET_TEXTURE_PALETTE, SHADER_UNIFORM_SAMPLER2D);
+     tsg->resolution_loc = GetShaderLocation(tsg->shader , "resolution");
+     tsg->tnoise0_loc = GetShaderLocation(tsg->shader , "tex_noise0");
+     tsg->tnoise1_loc = GetShaderLocation(tsg->shader , "tex_noise1");
+     
+     // Activate it after BeginShaderMode
+     //SetShaderValueTexture(tsg->shader, tsg->tpalette_loc, ASSET_TEXTURE_PALETTE);
+     //SetShaderValueTexture(tsg->shader, tsg->tnoise0_loc, assets->tex_noise0);
+     //SetShaderValueTexture(tsg->shader, tsg->tnoise1_loc, assets->tex_noise1);
 }
 
 void assets_load(Assets *assets) {
@@ -124,6 +138,13 @@ void assets_load(Assets *assets) {
         assets->shader_file_mod_times[i] = 0;
         load_shader(assets, i);
     }
+    
+    Image perlinNoise = GenImagePerlinNoise(1024, 1024, 0, 0, 2.0f);
+    Image cellular = GenImageCellular(1024, 1024, 32);
+    assets->tex_noise0 = LoadTextureFromImage(perlinNoise);
+    assets->tex_noise1 = LoadTextureFromImage(cellular);
+    UnloadImage(perlinNoise);
+    UnloadImage(cellular);
 }
 
 void assets_unload(Assets *assets) {
@@ -135,6 +156,16 @@ void assets_unload(Assets *assets) {
    for (int i = 0; i < ASSETS_TEXTURES_COUNT; i++) {
         assets->texture_file_mod_times[i] = 0;
         UnloadTexture(assets->textures[i]);
+    }
+    
+    UnloadTexture(assets->tex_noise0);
+    UnloadTexture(assets->tex_noise1);
+}
+
+void assets_update_resized(Assets *assets) {
+    const float resolution[2] = { viewport_w, viewport_h };
+    for (int i = 0; i < ASSETS_SHADERS_COUNT; i++) {
+                SetShaderValue(assets->shaders[i].shader, assets->shaders[i].resolution_loc, &resolution, SHADER_UNIFORM_IVEC2);
     }
 }
 

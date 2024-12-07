@@ -18,12 +18,54 @@ typedef struct AppState {
 
 typedef struct AppRenderTextures {
     RenderTexture2D rt_f0;
+    RenderTexture2D rt_f1;
+    RenderTexture2D rt_f2;
 } AppRenderTextures;
 
 AppState *ap = { 0 };
 AppRenderTextures *arender = { 0 };
 
 #define TITLE "Tynroar. GPJam."
+
+void draw_fin() {
+    // draw chroma mask into second texture
+    BeginShaderMode(ASSET_SHADER_CHROMAKEY);
+    BeginTextureMode(arender->rt_f1);
+    ClearBackground(BLACK);
+    DrawTextureFlipped(arender->rt_f0.texture, WHITE);
+    EndTextureMode();
+    EndShaderMode();
+    
+    // subtract chroma from first texture
+    BeginTextureMode(arender->rt_f2);
+    ClearBackground(BLACK);
+    BeginBlendMode(BLEND_SUBTRACT_COLORS);
+    DrawTextureFlipped(arender->rt_f1.texture, WHITE);
+    DrawTextureFlipped(arender->rt_f0.texture, WHITE);
+
+    EndBlendMode();
+    EndTextureMode();
+
+    // draw post vfx onto first texture
+    BeginTextureMode(arender->rt_f0);
+    ClearBackground(BLACK);
+    BeginBlendMode(BLEND_ADD_COLORS);
+    
+    DrawTextureFlipped(arender->rt_f2.texture, WHITE);
+    
+    TynShaderGeneric goldflames = ASSET_GSHADER_VFX_GOLDFLAMES;
+    BeginShaderMode(goldflames.shader);
+    SetShaderValueTexture(goldflames.shader, goldflames.tnoise0_loc, assets->tex_noise0);
+    SetShaderValueTexture(goldflames.shader, goldflames.tnoise1_loc, assets->tex_noise1);
+    DrawTextureFlipped(arender->rt_f1.texture, WHITE);
+    EndShaderMode();
+    
+    EndBlendMode();
+    EndTextureMode();
+
+    // fin 
+    DrawTextureFlipped(arender->rt_f0.texture, WHITE);
+}
 
 void draw() {    
     bool commit = 
@@ -46,9 +88,13 @@ void draw() {
     }
     EndTextureMode();
     
-    bool next_screen = page < 0 || ap->sp_scene.progress >= 1.0;
-    bool reset = next_screen || IsKeyPressed(KEY_R);
-    if (next_screen) {
+    bool prev_screen = IsKeyPressed(KEY_LEFT);
+    bool next_screen = page < 0 || ap->sp_scene.progress >= 1.0 || IsKeyPressed(KEY_RIGHT);
+    bool reset = prev_screen || next_screen || IsKeyPressed(KEY_R);
+    
+    if (prev_screen) {
+        ap->screen -= 1;
+    } else if (next_screen) {
         ap->screen += 1;
     }
     if (reset) {
@@ -58,15 +104,8 @@ void draw() {
         ap->f = 0;
     } 
 
-    Texture tex = arender->rt_f0.texture;
-    BeginShaderMode(ASSET_SHADER_CHROMAKEY);
-    DrawTexturePro(
-            tex, 
-            (Rectangle){ 0, 0, tex.width, -tex.height }, 
-            (Rectangle){ 0, 0, tex.width, tex.height }, 
-            (Vector2) { 0,0 }, 
-            0 * RAD2DEG, GREEN);
-    EndShaderMode();
+    draw_fin();
+    //DrawTexture(assets->tex_noise1, 0, 0, WHITE);
     draw_grid();
 }
 
@@ -76,6 +115,10 @@ void resized(int w, int h) {
     
     UnloadRenderTexture(arender->rt_f0);
    arender->rt_f0  = LoadRenderTexture(viewport_w, viewport_h);
+   UnloadRenderTexture(arender->rt_f1);
+   arender->rt_f1  = LoadRenderTexture(viewport_w, viewport_h);
+  UnloadRenderTexture(arender->rt_f2);
+   arender->rt_f2 = LoadRenderTexture(viewport_w, viewport_h);
 }
 
 void step() {
@@ -107,6 +150,8 @@ void load() {
      load_rutopter();
      assets_load(assets);
      arender->rt_f0  = LoadRenderTexture(viewport_w, viewport_h);
+     arender->rt_f1  = LoadRenderTexture(viewport_w, viewport_h);
+     arender->rt_f2  = LoadRenderTexture(viewport_w, viewport_h);
 }
 
 void run() {
@@ -122,7 +167,7 @@ void run() {
 
 void init() {
     ap = malloc(sizeof(AppState));
-    ap->screen = 1;
+    ap->screen = 0;
     ap->sp_scene.elapsed = 0;
     ap->sp_scene.page = 0;
     ap->f = 0;

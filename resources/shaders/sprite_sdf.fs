@@ -9,8 +9,9 @@ varying vec4 fragColor;
 // Input uniform values
 uniform sampler2D texture0;
 uniform vec4 colDiffuse;
-uniform sampler2D tex_palette;
 
+uniform sampler2D tex_palette;
+uniform vec2 resolution;
 uniform float time;
 
 float threshold = 0.74;
