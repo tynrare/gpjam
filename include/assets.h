@@ -9,7 +9,7 @@
 
 
 #define ASSETS_SOUNDS_COUNT 4
-#define ASSETS_TEXTURES_COUNT 3
+#define ASSETS_TEXTURES_COUNT 4
 #define ASSETS_SHADERS_COUNT 4
 
 static const char* const assets_sounds_filenames[] = {
@@ -22,7 +22,8 @@ static const char* const assets_sounds_filenames[] = {
 static const char* const assets_textures_filenames[] = {
     TEXTURES_PATH "palette.png",
     TEXTURES_PATH "suit_hearts.png",
-    TEXTURES_PATH "hexagon.png"
+    TEXTURES_PATH "hexagon.png",
+    TEXTURES_PATH "noise0.png"
 };
 
 typedef struct TynShaderGeneric {
@@ -48,7 +49,6 @@ typedef struct Assets {
      int texture_file_mod_times[ASSETS_SOUNDS_COUNT];
      TynShaderGeneric shaders[ASSETS_SHADERS_COUNT];
      int shader_file_mod_times[ASSETS_SHADERS_COUNT];
-     Texture tex_noise0;
      Texture tex_noise1;
 } Assets;
 
@@ -62,6 +62,7 @@ Assets *assets = { 0 };
 #define ASSET_TEXTURE_PALETTE     assets->textures[0]
 #define ASSET_TEXTURE_HEART           assets->textures[1]
 #define ASSET_TEXTURE_HEXAGON   assets->textures[2]
+#define ASSET_TEXTURE_NOISE0         assets->textures[3]
 
 #define ASSET_GSHADER_VFX_GOLDFLAMES assets->shaders[3]
 
@@ -139,11 +140,8 @@ void assets_load(Assets *assets) {
         load_shader(assets, i);
     }
     
-    Image perlinNoise = GenImagePerlinNoise(1024, 1024, 0, 0, 2.0f);
     Image cellular = GenImageCellular(1024, 1024, 32);
-    assets->tex_noise0 = LoadTextureFromImage(perlinNoise);
     assets->tex_noise1 = LoadTextureFromImage(cellular);
-    UnloadImage(perlinNoise);
     UnloadImage(cellular);
 }
 
@@ -158,7 +156,6 @@ void assets_unload(Assets *assets) {
         UnloadTexture(assets->textures[i]);
     }
     
-    UnloadTexture(assets->tex_noise0);
     UnloadTexture(assets->tex_noise1);
 }
 

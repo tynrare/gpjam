@@ -55,7 +55,7 @@ void draw_fin() {
     
     TynShaderGeneric goldflames = ASSET_GSHADER_VFX_GOLDFLAMES;
     BeginShaderMode(goldflames.shader);
-    SetShaderValueTexture(goldflames.shader, goldflames.tnoise0_loc, assets->tex_noise0);
+    SetShaderValueTexture(goldflames.shader, goldflames.tnoise0_loc, ASSET_TEXTURE_NOISE0);
     SetShaderValueTexture(goldflames.shader, goldflames.tnoise1_loc, assets->tex_noise1);
     DrawTextureFlipped(arender->rt_f1.texture, WHITE);
     EndShaderMode();

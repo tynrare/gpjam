@@ -162,7 +162,7 @@ int scene_b(ScreenplayScene *scene, bool commit) {
      
      print_screenplay_text_color("@tynroar, wit.games;", 0, pd[1], pd[3], e, BLACK);
      
-     const char *text_hint = "А вы знали что при загрузке \nпоказываются дурацкие советы?";
+     const char *text_hint = "А вы знали, что при загрузке \nпоказываются дурацкие советы?";
      print_screenplay_text_pos(text_hint, pd[1], pd[2], e, 16 + pad, redarea_h + 2, WHITE);
 
      const int tl_px = viewport_w - 400;
