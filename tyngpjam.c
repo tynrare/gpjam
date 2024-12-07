@@ -92,7 +92,7 @@ void draw() {
     bool next_screen = page < 0 || ap->sp_scene.progress >= 1.0 || IsKeyPressed(KEY_RIGHT);
     bool reset = prev_screen || next_screen || IsKeyPressed(KEY_R);
     
-    if (prev_screen) {
+    if (prev_screen && ap->screen > 0) {
         ap->screen -= 1;
     } else if (next_screen) {
         ap->screen += 1;

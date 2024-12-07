@@ -158,7 +158,8 @@ int scene_b(ScreenplayScene *scene, bool commit) {
      
      const int pad = 8;
      const int redarea_h = 256 - pad * 2;
-     DrawRectangle(pad, pad, viewport_w - pad * 2, redarea_h, Fade(BLUE, nmap(pd[0], pd[2], e) * 0.7 + 0.3));
+     const Color bc = IsKeyUp(KEY_R) ? BLUE : RED;
+     DrawRectangle(pad, pad, viewport_w - pad * 2, redarea_h, Fade(bc, nmap(pd[0], pd[2], e) * 0.7 + 0.3));
      
      print_screenplay_text_color("@tynroar, wit.games;", 0, pd[1], pd[3], e, BLACK);
      
